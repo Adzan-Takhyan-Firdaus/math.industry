@@ -1,8 +1,8 @@
 import streamlit as st
 from rizky.linear_programming import run_linear_programming
-from bila.inventory_eoq import run_eqq_model
-from wulan.queue_mm1 import run_queue_model
-from tiyas.exponential_growth import run_exponential_model
+from bila.eqq_model import run_eqq_model
+from wulan.queue_model import run_queue_model
+from tiyas.exponential_model import run_exponential_model
 
 st.set_page_config(page_title="Aplikasi Matematika Industri", layout="wide")
 st.sidebar.title("📌 Instruksi Penggunaan")
