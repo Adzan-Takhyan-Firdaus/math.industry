@@ -5,7 +5,8 @@ from wulan.queue_model import run_queue_model
 from tiyas.exponential_model import run_exponential_model
 
 st.set_page_config(page_title="Aplikasi Matematika Industri", layout="wide")
-st.sidebar.title("📌 Instruksi Penggunaan")
+st.sidebar.title("Kelompok 2 Matematika Terapan")
+st.sidebar.title("Aplikasi Matematika pada Lingkungan Industri")
 st.sidebar.write("Pilih salah satu model dari menu di bawah ini. Masukkan input yang diminta, lalu lihat hasil dan grafik.")
 
 menu = st.sidebar.radio("Pilih Model", ["Optimasi Produksi (Linear Programming)",
