@@ -7,11 +7,11 @@ from tiyas.exponential_model import run_exponential_model
 st.set_page_config(page_title="Aplikasi Matematika Industri", layout="wide")
 st.sidebar.title("Kelompok 2 Matematika Terapan")
 st.sidebar.markdown("""
-**Kelompok Wulan**
-- Wulan
-- Rizky
-- Bila
-- Tiyas
+- Adzan Takhyan Firdaus
+- Wulan Melinda Sari
+- Muhamad Rizky
+- Bila Rahmadani
+- Tiyas Sulis Setyawati
 """)
 
 st.sidebar.title("Aplikasi Matematika pada Lingkungan Industri")
