@@ -1,56 +1,48 @@
-import streamlit as st                    # Import library Streamlit untuk antarmuka web
-import numpy as np                       # Import numpy untuk operasi numerik (array, dll)
-from scipy.optimize import linprog       # Import fungsi linprog untuk optimasi linear
-import matplotlib.pyplot as plt          # Import matplotlib untuk plotting grafik
+import streamlit as st                    # Streamlit untuk UI
+import numpy as np                       # Numpy buat matematika
+from scipy.optimize import linprog       # linprog buat optimasi LP
+import matplotlib.pyplot as plt          # Matplotlib buat grafik
 
 def run_linear_programming():
-    st.title("Optimasi Produksi (Linear Programming)")  # Judul halaman Streamlit
+    st.title("Optimasi Produksi (Linear Programming)")
 
-    # Input fungsi objektif Z = c1*x + c2*y
-    st.markdown("### Masukkan Fungsi Objektif")
-    c1 = st.number_input("Koefisien x (misal: 40)", value=40.0)  # Input koefisien x
-    c2 = st.number_input("Koefisien y (misal: 30)", value=30.0)  # Input koefisien y
+    # Input fungsi objektif
+    st.markdown("### Masukkan Fungsi Objektif (Maksimalkan Z = c1*x + c2*y)")
+    c1 = st.number_input("Koefisien x", value=55.0)
+    c2 = st.number_input("Koefisien y", value=35.0)
 
-    # Input kendala pertama: a1_1*x + a1_2*y <= b1
-    st.markdown("### Masukkan Kendala 1 (misal: 2x + 1y ≤ 100)")
-    a1_1 = st.number_input("Koefisien x (kendala 1)", value=2.0)     # Input x untuk kendala 1
-    a1_2 = st.number_input("Koefisien y (kendala 1)", value=1.0)     # Input y untuk kendala 1
-    b1 = st.number_input("Nilai batas kanan (kendala 1)", value=100.0)  # Batas kanan kendala 1
+    # Input kendala utama saja (misal: waktu mesin)
+    st.markdown("### Masukkan Kendala Utama (misal: 3x + 2y ≤ 210)")
+    a1 = st.number_input("Koefisien x (kendala 1)", value=3.0)
+    a2 = st.number_input("Koefisien y (kendala 1)", value=2.0)
+    b = st.number_input("Nilai batas kanan kendala", value=210.0)
 
-    # Input kendala kedua: a2_1*x + a2_2*y <= b2
-    st.markdown("### Masukkan Kendala 2 (misal: 1x + 1y ≤ 80)")
-    a2_1 = st.number_input("Koefisien x (kendala 2)", value=1.0)     # Input x untuk kendala 2
-    a2_2 = st.number_input("Koefisien y (kendala 2)", value=1.0)     # Input y untuk kendala 2
-    b2 = st.number_input("Nilai batas kanan (kendala 2)", value=80.0)  # Batas kanan kendala 2
+    # Setup model LP
+    c = [-c1, -c2]                   # Fungsi objektif (pakai negatif untuk maksimisasi)
+    A = [[a1, a2]]                   # Hanya 1 kendala
+    B = [b]
+    bounds = [(0, None), (0, None)] # x ≥ 0, y ≥ 0
 
-    # Fungsi objektif untuk linprog (pakai tanda minus karena linprog default = minimisasi)
-    c = [-c1, -c2]                              # Ubah ke negatif untuk maksimisasi
-    A = [[a1_1, a1_2], [a2_1, a2_2]]            # Matriks koefisien kendala
-    b = [b1, b2]                                # Vektor batas kendala
-    bounds = [(0, None), (0, None)]             # Batasan variabel x, y ≥ 0
+    # Jalankan optimasi
+    res = linprog(c, A_ub=A, b_ub=B, bounds=bounds, method='highs')
 
-    # Jalankan optimasi menggunakan linprog dari scipy
-    res = linprog(c, A_ub=A, b_ub=b, bounds=bounds, method='highs')  # Proses optimasi
+    if res.success:
+        st.success(f"Solusi optimal: x = {res.x[0]:.2f}, y = {res.x[1]:.2f}")
+        st.info(f"Nilai maksimum Z = {-res.fun:.2f}")
 
-    if res.success:  # Jika solusi berhasil ditemukan
-        # Tampilkan solusi ke layar
-        st.success(f"Solusi optimal: x = {res.x[0]:.2f}, y = {res.x[1]:.2f}")  # Output nilai x dan y
-        st.info(f"Nilai maksimum Z = {-res.fun:.2f}")  # Output nilai Z (ingat awalnya dibalik minus)
+        # Visualisasi grafik (dengan 1 kendala)
+        x_vals = np.linspace(0, b / max(a1, 0.1), 200)        # Range x untuk grafik
+        y = (b - a1 * x_vals) / a2                            # Hitung y dari persamaan kendala
 
-        # Visualisasi wilayah feasible dan solusi optimal
-        x_vals = np.linspace(0, max(b1, b2), 200)                # Bikin nilai x dari 0 ke maksimum
-        y1 = (b1 - a1_1 * x_vals) / a1_2                         # Rumus garis kendala 1
-        y2 = (b2 - a2_1 * x_vals) / a2_2                         # Rumus garis kendala 2
-
-        plt.figure(figsize=(8, 6))                               # Ukuran grafik
-        plt.plot(x_vals, y1, label=f"{a1_1}x + {a1_2}y ≤ {b1}")  # Plot garis kendala 1
-        plt.plot(x_vals, y2, label=f"{a2_1}x + {a2_2}y ≤ {b2}")  # Plot garis kendala 2
-        plt.fill_between(x_vals, np.minimum(y1, y2), color='skyblue', alpha=0.3)  # Wilayah feasible
-        plt.plot(res.x[0], res.x[1], 'ro', label='Solusi Optimal')  # Titik solusi optimal
-        plt.xlabel('x')                                          # Label sumbu x
-        plt.ylabel('y')                                          # Label sumbu y
-        plt.title('Wilayah Feasible dan Solusi Optimal')         # Judul grafik
-        plt.legend()                                             # Tampilkan legenda
-        st.pyplot(plt)                                           # Tampilkan grafik di Streamlit
+        y = np.maximum(0, y)  # Pastikan y tidak negatif
+        plt.figure(figsize=(8, 6))
+        plt.plot(x_vals, y, label=f"{a1}x + {a2}y ≤ {b}")     # Plot garis kendala
+        plt.fill_between(x_vals, 0, y, color='skyblue', alpha=0.3, label='Wilayah Feasible')
+        plt.plot(res.x[0], res.x[1], 'ro', label='Solusi Optimal')  # Titik optimal
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('Visualisasi Optimasi Produksi (1 Kendala)')
+        plt.legend()
+        st.pyplot(plt)
     else:
-        st.error("Tidak ditemukan solusi optimal.")              # Jika gagal menemukan solusi
+        st.error("Tidak ditemukan solusi optimal.")
