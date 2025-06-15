@@ -20,7 +20,7 @@ st.sidebar.markdown("""
 - Adzan Takhyan Firdaus
 - Wulan Melinda Sari
 - Muhamad Rizky
-- Bila Rahmadani
+- Nabila Rahmadani
 - Tiyas Sulis Setyawati
 """)
 
